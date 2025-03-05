@@ -41,7 +41,7 @@
       background-color: #f5f5f5;
       padding: 10px;
       border-radius: 4px;
-      display: none;
+      display: block;
     }
   </style>
 </head>
@@ -81,10 +81,8 @@
       `;
     }
     
-    // Show debug info if there's an issue
-    if (!code || error) {
-      showDebug();
-    }
+    // Always show debug info for troubleshooting
+    showDebug();
     
     // Check if we have a code or error
     if (code && state) {
@@ -92,17 +90,26 @@
       
       // Try to redirect to the extension
       try {
+        // Construct the redirect URL with the extension ID from state
+        const redirectUrl = `chrome-extension://${state}/callback.html?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+        
+        // Add the redirect URL to debug info
+        document.getElementById('debug-content').innerHTML += `
+          <p>Redirect URL: ${redirectUrl}</p>
+        `;
+        
         // This will only work if the user has the extension installed
-        window.location.href = `chrome-extension://${state}/callback.html?code=${code}&state=${state}`;
+        window.location.href = redirectUrl;
         
         // If we're still here after 3 seconds, the redirect didn't work
         setTimeout(() => {
           showMessage('Please open the Reddit DM Manager extension to complete authentication.');
-          showDebug();
         }, 3000);
       } catch (err) {
         showMessage('Error redirecting to extension. Please open the Reddit DM Manager extension.');
-        showDebug();
+        document.getElementById('debug-content').innerHTML += `
+          <p>Error: ${err.message}</p>
+        `;
       }
     } else if (error) {
       showMessage(`Authentication error: ${error}. Please try again.`);

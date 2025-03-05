@@ -84,13 +84,14 @@
     // Always show debug info for troubleshooting
     showDebug();
     
-    // Check if we have a code or error
+    // Check if we have a code and state
     if (code && state) {
       showMessage('Authorization successful! Redirecting to extension...');
       
       // Try to redirect to the extension
       try {
-        // Construct the redirect URL with the extension ID from state
+        // This will only work if the user has the extension installed
+        // The state parameter contains the extension ID
         const redirectUrl = `chrome-extension://${state}/callback.html?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
         
         // Add the redirect URL to debug info
@@ -98,7 +99,7 @@
           <p>Redirect URL: ${redirectUrl}</p>
         `;
         
-        // This will only work if the user has the extension installed
+        // Redirect to the extension
         window.location.href = redirectUrl;
         
         // If we're still here after 3 seconds, the redirect didn't work
